@@ -9,12 +9,18 @@ class RouterOutlet extends StatefulWidget {
   /// An optional filtering function that returns true if a given path
   /// should be included in the navigation stack.
   final bool Function(String path)? pathFilter;
+  /// A default widget to show if no pages match the criteria
+  final Widget? defaultWidget;
 
   /// Constructs a [RouterOutlet].
   ///
   /// Optionally, [pathFilter] can be provided to filter the routes based
   /// on custom criteria.
-  const RouterOutlet({super.key, this.pathFilter});
+  const RouterOutlet({
+    super.key,
+    this.pathFilter,
+    this.defaultWidget,
+  });
 
   @override
   State<RouterOutlet> createState() => _RouterOutletState();
@@ -36,6 +42,7 @@ class _RouterOutletState extends State<RouterOutlet> {
     // a set of default observers.
     _delegate = OutletRouterDelegate(
       pathFilter: widget.pathFilter,
+      defaultWidget: widget.defaultWidget,
       observers: [
         HeroController(),
       ],

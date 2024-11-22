@@ -18,6 +18,8 @@ class OutletRouterDelegate extends RouterDelegate<RouteEntity> //
   /// An optional filtering function that returns true if a given path
   /// should be included in the navigation stack.
   final bool Function(String path)? pathFilter;
+  /// A default widget to show if no pages match the criteria
+  final Widget? defaultWidget;
 
   /// A list of observers that can be used to listen to the navigation
   /// events happening within this router delegate.
@@ -28,7 +30,11 @@ class OutletRouterDelegate extends RouterDelegate<RouteEntity> //
   /// [pathFilter] can be provided to filter the routes based on a custom
   /// criteria.
   /// [observers] can be provided to observe the navigational changes.
-  OutletRouterDelegate({required this.pathFilter, this.observers = const []});
+  OutletRouterDelegate({
+    required this.pathFilter,
+    this.observers = const [],
+    this.defaultWidget,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +55,7 @@ class OutletRouterDelegate extends RouterDelegate<RouteEntity> //
 
     // If no pages match the criteria, display an empty container.
     if (pages.isEmpty) {
-      return Container();
+      return defaultWidget ?? Container();
     }
 
     // Returns a custom navigator with the computed pages.
