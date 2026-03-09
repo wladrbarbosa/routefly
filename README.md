@@ -6,8 +6,12 @@ Routefly is a folder-based route manager inspired by NextJS and created by the F
 
 **Example:**
 
-
 ![Logo](https://github.com/Flutterando/routefly/blob/main/assets/images/routefly_scheme.png?raw=true)
+
+## Sponsors
+<a href="https://www.nzest.co/">
+    <img src="https://media.discordapp.net/attachments/1328774070866673715/1349417416337391678/nZest-logo-2.png?ex=67d30667&is=67d1b4e7&hm=3e4c5e2a57a6dbe1463aa7d6fe8546c1dfa7ab67ff683bed13fa07ff88ffb58b&=&format=webp&quality=lossless&width=1723&height=918" alt="Logo" width="200">
+</a>
 
 ## Installation and Initialization
 
@@ -19,11 +23,20 @@ To get started with Routefly, follow these steps:
    flutter pub add routefly
 ```
 
-2. Modify your MaterialApp or CupertinoApp by replacing it with MaterialApp.router or CupertinoApp.router. Configure the router using the Routefly.routerConfig method:
+2. You will need to add the `@Main()` annotation to the main Widget (usually the one containing MaterialApp or CupertinoApp). After adding the necessary imports and parts, the code will be ready to generate the routes.
+
+It is also necessary to use Navigator 2.0, accessed through the `MaterialApp.router` or `CupertinoApp.router` constructor, adding the custom `routerConfig` from `Routefly`:
+
 
 ```dart
-import 'package:routefly/routefly.dart';
+// file: my_app.dart
 
+import 'package:routefly/routefly.dart';
+import 'my_app.route.dart'; // <- GENERATED
+
+part 'my_app.g.dart'; // <- GENERATED
+
+@Main('lib/app')
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -35,6 +48,9 @@ class MyApp extends StatelessWidget {
   }
 }
 ```
+
+The `@Main()` takes a parameter for the folder that will be used by `Routefly` as the base to look for pages.
+The default base folder is `lib/app`;
 
 3. Organize your code by creating folders that contain a *_page.dart file for each page. 
 For example:

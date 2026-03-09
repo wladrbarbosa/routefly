@@ -1,8 +1,8 @@
-import 'package:example/routes.g.dart';
 import 'package:flutter/material.dart';
 import 'package:routefly/routefly.dart';
 
 import '../app_page.dart';
+import '../app_widget.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({super.key});
@@ -31,7 +31,7 @@ class _UsersPageState extends State<UsersPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                Routefly.push(routePaths.users.$id.changes({'idx': '2'}));
+                Routefly.push(routePaths.users.$id.changes({'id': '2'}));
               },
               child: const Text('Usuario 2'),
             ),

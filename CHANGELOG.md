@@ -1,3 +1,20 @@
+## 3.1.3
+
+* Fix generator
+
+## 3.1.2
+
+* Fix windows
+
+## 3.1.1
+
+* Added page suffix.
+
+## 3.0.0
+
+* Introduce @Main annotation to selected watch folder.
+* Remove CLI --init flag
+
 ## 2.0.4
 
 * Fix: Fix pushNavigation

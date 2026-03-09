@@ -23,6 +23,9 @@ class RouteRepresentation {
   /// Index for managing route instances.
   final int index;
 
+  /// The function used to build the route.
+  final String routeBuilderFunction;
+
   /// Constructs a new [RouteRepresentation].
   ///
   /// Parameters:
@@ -37,6 +40,7 @@ class RouteRepresentation {
     required this.path,
     required this.file,
     this.parent = '',
+    this.routeBuilderFunction = '',
     required this.index,
     this.isLayout = false,
     required this.builder,
@@ -50,17 +54,21 @@ class RouteRepresentation {
   /// - [index]: Index for managing route instances.
   static RouteRepresentation withAppDir(
     Directory appDir,
+    String widgetSuffix,
     File file,
     int index,
+    String? suffix,
   ) {
     final isLayout = file.path.endsWith('layout.dart');
-    final path = pathResolve(file, appDir);
-    final builder = _getBuilder(file, index);
+    final path = pathResolve(file, appDir, suffix);
+    final routeBuilderFunction = _getBuilder(file, widgetSuffix, index);
+    final builder = 'b${index}Builder';
 
     return RouteRepresentation(
       isLayout: isLayout,
       path: path,
       builder: builder,
+      routeBuilderFunction: routeBuilderFunction,
       file: file,
       index: index,
     );
@@ -71,6 +79,7 @@ class RouteRepresentation {
   static String pathResolve(
     File file,
     Directory appDir,
+    [String? widgetSuffix,]
   ) {
     var path = file.path;
 
@@ -83,15 +92,19 @@ class RouteRepresentation {
         .where((e) => !RegExp(r'\(.+\)').hasMatch(e))
         .join('/');
 
-    path = _removeSuffix(path);
+    path = _removeSuffix(path, widgetSuffix);
     path = path.replaceFirst(appDir.path, '');
 
     return path.isEmpty ? '/' : path;
   }
 
-  static String _removeSuffix(String path) {
+  static String _removeSuffix(String path, String? widgetSuffix) {
     // Remover sufixo
-    var newPath = path.replaceAll(RegExp(r'(_page|_layout)\.dart$'), '');
+    var newPath = path.replaceAll(RegExp(r'(_page|_layout|widgetSuffix)\.dart$'), '');
+
+    if (widgetSuffix != null) {
+      newPath = newPath.replaceAll('_$widgetSuffix.dart', '');
+    }
 
     // Remover duplicação após a última barra
     final lastPart = newPath.split('/').last;
@@ -103,7 +116,7 @@ class RouteRepresentation {
   }
 
   /// Fetches the builder function from the given [file].
-  static String _getBuilder(File file, int index) {
+  static String _getBuilder(File file, String widgetSuffix, int index) {
     final content = file.readAsLinesSync();
 
     for (var i = 0; i < content.length; i++) {
@@ -113,7 +126,7 @@ class RouteRepresentation {
     }
 
     final line = content.firstWhere(
-      (line) => line.contains(RegExp(r'class \w+[(Page)|(Layout)] ')),
+      (line) => line.contains(RegExp('class \\w+[($widgetSuffix)|(Layout)] ')),
       orElse: () => '',
     );
 
@@ -135,19 +148,22 @@ class RouteRepresentation {
         .replaceFirst(RegExp(' extends.+'), '');
 
     if (routeBuilderLine.isNotEmpty) {
-      return 'a$index.routeBuilder';
+      return 'Route b${index}Builder(BuildContext context, RouteSettings settings) => a$index.routeBuilder(context, settings);';
     }
 
-    return '''(ctx, settings) => Routefly.defaultRouteBuilder(
+    return '''Route b${index}Builder(BuildContext ctx, RouteSettings settings) => Routefly.defaultRouteBuilder(
       ctx,
       settings,
       const a$index.$className(),
-    )''';
+    );''';
   }
 
   /// Generates the import statement for the route.
-  String get import {
-    final path = file.path.replaceFirst('./lib/', '').replaceAll(r'\', '/');
+  String getImport(String mainFilePath) {
+    final parent = File(mainFilePath).parent.path.replaceAll(r'\', '/');
+    final fixPath =
+        parent.isEmpty ? '${Platform.pathSeparator}lib/' : '$parent/';
+    final path = file.path.replaceFirst(fixPath, '').replaceAll(r'\', '/');
     return "import '$path' as a$index;";
   }
 
@@ -172,6 +188,8 @@ class RouteRepresentation {
     bool? isLayout,
     File? file,
     int? index,
+    String? routeBuilderFunction,
+    String? widgetSuffix,
   }) {
     return RouteRepresentation(
       path: path ?? this.path,
@@ -180,6 +198,7 @@ class RouteRepresentation {
       builder: builder ?? this.builder,
       isLayout: isLayout ?? this.isLayout,
       index: index ?? this.index,
+      routeBuilderFunction: routeBuilderFunction ?? this.routeBuilderFunction,
     );
   }
 }
